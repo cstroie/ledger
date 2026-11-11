@@ -1,0 +1,83 @@
+# LEDGER: the words. key: text. Tokens in the ship lines: {N} the ship, capitalised; {n} the ship;
+# {t} when she passed ("at midnight"). Variants 1-3 are the keeper's to choose; 4 is the relief
+# hand's plain entry. mkwords.js checks the counts and the lengths.
+
+wx.0.0: Fair, the glass high and steady.
+wx.0.1: Clear sky, a light air from the west.
+wx.0.2: A quiet night, stars to the horizon.
+wx.0.3: Fair.
+wx.1.0: Haze on the water, no horizon.
+wx.1.1: A thin haze; the glow came back off it.
+wx.1.2: Hazy and still.
+wx.1.3: Haze.
+wx.2.0: Fog, thick as wool.
+wx.2.1: Fog down on the point.
+wx.2.2: Fog by dark, the horn going all night.
+wx.2.3: Fog.
+wx.3.0: Wind rising from the north-west.
+wx.3.1: Hard wind, the shutters working.
+wx.3.2: Gusty, with a cold edge to it.
+wx.3.3: Wind.
+wx.4.0: A long swell from the south-west.
+wx.4.1: Heavy swell breaking on the Sisters.
+wx.4.2: Swell running, the rocks white.
+wx.4.3: Swell.
+wx.5.0: Storm. The tower shook.
+wx.5.1: Gale from the south, rain on the glass.
+wx.5.2: A full storm; I did not sleep.
+wx.5.3: Storm.
+
+lamp.0.0: Lit early, at sundown.
+lamp.0.1: Lamp lit with the last of the light.
+lamp.0.2: Struck the lamp at sundown.
+lamp.0.3: Lamp early.
+lamp.1.0: Lit at dark.
+lamp.1.1: Lamp lit when the stars showed.
+lamp.1.2: Lit the lamp at full dark.
+lamp.1.3: Lamp at dark.
+lamp.2.0: Lit late, after midnight.
+lamp.2.1: Held the lamp till the small hours.
+lamp.2.2: Lamp late, past the middle watch.
+lamp.2.3: Lamp late.
+lamp.3.0: Did not light the lamp; saved oil.
+lamp.3.1: Left the lamp cold.
+lamp.3.2: Lamp cold tonight.
+lamp.3.3: Lamp cold.
+
+ship.seen.0: {N} passed {t}, answering my light.
+ship.seen.1: {N} came by {t}, dipping her flag.
+ship.seen.2: Saw {n} go by {t}, close in.
+ship.seen.3: Ship: {n}, {t}, seen.
+ship.unseen.0: Heard {n} {t}; she passed unseen.
+ship.unseen.1: A horn out there {t}: {n}, I think.
+ship.unseen.2: {N} went by {t} without my light.
+ship.unseen.3: Ship: {n}, {t}, unseen.
+ship.none.0: No sail.
+ship.none.1: Nothing passed.
+ship.none.2: The sea was empty.
+ship.none.3: No ships.
+
+name.0: the Margit
+name.1: the Dunmore Lass
+name.2: the packet
+name.3: the Hester Vane
+name.4: the Ostrander
+name.5: a stranger
+
+time.0: at sundown
+time.1: at midnight
+time.2: in the small hours
+
+kind.0: collier, every week or so
+kind.1: trawler, out of Dunmore
+kind.2: mail packet
+kind.3: schooner
+kind.4: steamer, from the north
+kind.5: unknown sail
+
+letter.0: Captain Aberg of the collier writes that she steers by your light off the Sisters, and sends a sack of good coal.
+letter.1: The Dunmore Lass lands her catch on the tide. Her skipper sends a crate of herring, and thanks.
+letter.2: The mail packet's purser writes that the lamp was always lit when it was wanted. The Post Office has noticed.
+letter.3: The owner of the Hester Vane sends a barrel of oil. 'Write down what you see, and keep on writing it.'
+letter.4: The Ostrander's master sent a postcard of Hamburg, and a very small clock that keeps no time at all.
+letter.5: The stranger came into harbour at last, and her crew walked up to see the lamp that brought them round.

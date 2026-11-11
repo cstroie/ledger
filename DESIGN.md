@@ -46,4 +46,6 @@ VT100 only: scroll region (the page slides four lines at the start of a night: `
 
 ## Save
 
-`LEDGER.SAV`: 896 bytes straight from `state` (signature `LG`, version 1; a load of anything else starts a new log): seed, last night, start night (32 bits), oil, bell, the harbour counts (lights answered and ships unseen per ship), the ring. `LEDGER.LOG`: header, the entries still in the ring oldest first, the harbour book; padded with ^Z to whole records. Both are written after the screen is redrawn.
+`LEDGER.SAV`: 896 bytes straight from `state` (signature `LG`, version 1; a load of anything else starts a new log): seed, last night, start night (32 bits), oil, bell, the harbour counts (lights answered and ships unseen per ship), the ring. `LEDGER.LOG`: header, the entries still in the ring oldest first, the harbour book; padded with ^Z to whole records. Both are written after the screen is redrawn, to `LEDGER.$$$` first: the old file is deleted and the new one renamed only when every record was written (`wfile`). Byte 34 of the state counts storms foreseen (`foresee`: a storm met with the lamp lit after swell and wind in the two previous entries; attended nights only).
+
+`ac_let` is a bit per ship: a letter the relief hand earned during `sync`; `welcome` and `newnight` announce it. `cpoll` runs while the words are being chosen: it moves the clock and rings once (`cbell`) when the next night begins.

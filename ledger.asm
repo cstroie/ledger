@@ -125,6 +125,8 @@ mk:     call    upcase
         jp      z,m_find
         cp      'H'
         jp      z,m_harb
+        cp      'R'
+        jp      z,m_reset
         cp      'M'
         jp      z,m_bell
         cp      '?'
@@ -218,6 +220,40 @@ mf1:    ld      (focus),a
         call    drawcal
         call    drawbook
         jp      main
+m_reset: ld     hl,t_resetq
+        call    msg
+        call    getkey
+        call    upcase
+        cp      'Y'
+        jr      z,rs1
+        call    drawhints
+        jp      main
+rs1:    ld      a,(term)
+        push    af
+        ld      a,(st_mute)
+        push    af
+        call    blank
+        pop     af
+        ld      (st_mute),a
+        pop     af
+        ld      (term),a
+        ld      hl,0
+        ld      (argseed),hl
+        call    seed
+        call    gettime
+        call    initgame
+        call    zeroac
+        call    sync
+        call    setbeam
+        call    savegame
+        ld      a,7
+        ld      (calw),a
+        xor     a
+        ld      (layer),a
+        ld      (focus),a
+        call    toend
+        call    intro
+        jp      m_back
 m_harb: call    harbour
         jp      m_back
 m_help: call    intro
@@ -267,8 +303,14 @@ tn1:    xor     a
         call    drawhints
         ld      a,(letterf)
         or      a
+        jr      nz,tn_let
+        ld      a,(foref)
+        or      a
         jp      z,savegame
-        dec     a
+        ld      hl,t_fore
+        call    msg
+        jp      savegame
+tn_let: dec     a
         push    af
         call    msgbeg
         ld      hl,t_letter1
@@ -382,6 +424,8 @@ zeroac: ld      hl,ac_n
         ld      bc,9
         ld      (hl),0
         ldir
+        xor     a
+        ld      (ac_let),a
         ret
 
 ; setbeam: the lamp burns (the beam crosses the horizon) while the written night had it lit
@@ -443,6 +487,10 @@ newnight: call  zeroac
         call    drawcal
         call    drawpanel
         call    drawhints
+        ld      a,(ac_let)
+        or      a
+        ld      hl,t_letterw
+        jr      nz,nn1
         ld      hl,(ac_n)
         ld      a,h
         or      l
@@ -468,7 +516,11 @@ nn2:    call    puts
         call    msgend
         jr      nn3
 nn1:    call    msg
-nn3:    call    bell
+nn3:    ld      a,(cbell)
+        or      a
+        call    z,bell
+        xor     a
+        ld      (cbell),a
         jp      savegame
 
 ; idle: the beam of a lit lamp travels the horizon while nothing else happens
@@ -579,6 +631,7 @@ st_oil  equ     state+14
 st_mute equ     state+15
 st_ans  equ     state+16        ; 6 bytes: lights answered, per ship
 st_mis  equ     state+22        ; 6 bytes: ships that passed unseen
+st_fore equ     state+34        ; storms met with the lamp lit after swell and wind
 ents    equ     state+64        ; the ring of 128 entries of 6 bytes
 
 v0      equ     state+STATESZ
@@ -656,7 +709,12 @@ wf_fcb  equ     v0+126
 wf_p    equ     v0+128
 wf_n    equ     v0+130
 lrecs   equ     v0+131
-tbuf    equ     v0+132          ; 256
+ac_let  equ     v0+132          ; bit per ship: a letter came while away
+wf_err  equ     v0+133
+fcb_ren equ     v0+134          ; 36 bytes
+foref   equ     v0+170
+cbell   equ     v0+171
+tbuf    equ     v0+176          ; 256
 lbuf    equ     tbuf+256        ; 27000: the diary as text
 stackb  equ     lbuf+27000
 stack   equ     stackb+256

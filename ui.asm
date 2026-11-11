@@ -834,6 +834,7 @@ np2:    push    bc
 ; happened. The entry builds on the page as you choose.
 compose: xor    a
         ld      (cslot),a
+        ld      (cbell),a
 cp1:    call    menu
         ld      e,a
         ld      a,(cslot)
@@ -925,8 +926,13 @@ mn4:    call    endmem
         ld      a,(hl)
         cp      3
         jr      c,mn1
-mn5:    call    getkey
-        cp      CR
+mn5:    call    key
+        or      a
+        jr      nz,mn7
+        call    cpoll
+        call    delay
+        jr      mn5
+mn7:    cp      CR
         ld      b,0
         jr      z,mn6
         sub     '1'
@@ -936,6 +942,34 @@ mn5:    call    getkey
         ld      b,a
 mn6:    ld      a,b
         ret
+
+; cpoll: while the words are being chosen the clock goes on: the header moves, and the bell
+; rings once if the next night begins (the entry in hand is finished first, then the relief hand
+; catches up on whatever was missed)
+cpoll:  ld      a,(hasclk)
+        or      a
+        ret     z
+        call    gettime
+        ld      hl,(mdnow)
+        ld      de,(lastmd)
+        or      a
+        sbc     hl,de
+        jr      z,cp2
+        ld      hl,(mdnow)
+        ld      (lastmd),hl
+        call    drawhead
+cp2:    ld      a,(cbell)
+        or      a
+        ret     nz
+        call    calcn
+        ld      de,(nownt)
+        or      a
+        sbc     hl,de
+        ret     z
+        ret     c
+        ld      a,1
+        ld      (cbell),a
+        jp      bell
 
 ; ---------------------------------------------------------------- the other screens
 ; screens of text: HL = a table of lines, one per row from row B, a zero ends it
@@ -1052,7 +1086,43 @@ wl1:    call    puts
         call    pdec
         ld      hl,t_wl4
         call    puts
+        ld      a,(ac_let)
+        or      a
+        jr      z,wl_n
         ld      b,13
+        ld      c,3
+        call    gotoxy
+        ld      hl,t_wlet
+        call    puts
+        xor     a
+        ld      (hb_i),a
+        ld      (tmp1),a
+wl_l:   ld      a,(hb_i)
+        ld      b,a
+        ld      a,(ac_let)
+        inc     b
+wl_s:   rrca
+        djnz    wl_s
+        jr      nc,wl_x
+        ld      a,(tmp1)
+        or      a
+        jr      z,wl_f
+        ld      hl,t_comma
+        call    puts
+wl_f:   ld      a,1
+        ld      (tmp1),a
+        ld      a,(hb_i)
+        ld      hl,nametab
+        call    tabget
+        call    puts
+wl_x:   ld      hl,hb_i
+        inc     (hl)
+        ld      a,(hl)
+        cp      6
+        jr      c,wl_l
+        ld      a,'.'
+        call    putc
+wl_n:   ld      b,16
         ld      c,3
         call    gotoxy
         ld      hl,t_nothing2
@@ -1172,14 +1242,29 @@ hb2:    ld      a,c
         ld      e,2
         call    pwrap
         jr      hb4
-hb3:    ld      a,(hb_row)
+hb3:    ld      hl,t_noletter
+        ld      a,c
+        or      a
+        jr      nz,hb3b
+        ld      a,(hb_i)        ; never answered, and passed unseen three times: a nudge
+        ld      e,a
+        ld      d,0
+        ld      hl,st_mis
+        add     hl,de
+        ld      a,(hl)
+        ld      hl,t_noletter
+        cp      3
+        jr      c,hb3b
+        ld      hl,t_hint0
+hb3b:   push    hl
+        ld      a,(hb_row)
         inc     a
         ld      b,a
         ld      c,4
         call    gotoxy
         ld      a,A_DIM
         call    setattr
-        ld      hl,t_noletter
+        pop     hl
         call    puts
         xor     a
         call    setattr
@@ -1188,6 +1273,30 @@ hb4:    ld      hl,hb_i
         ld      a,(hl)
         cp      6
         jp      c,hb1
+        ld      b,21
+        ld      c,3
+        call    gotoxy
+        ld      hl,t_village
+        call    puts
+        ld      hl,0
+        ld      de,st_ans
+        ld      b,6
+hb5:    ld      a,(de)
+        add     a,l
+        ld      l,a
+        jr      nc,hb6
+        inc     h
+hb6:    inc     de
+        djnz    hb5
+        call    pdec
+        ld      hl,t_village2
+        call    puts
+        ld      a,(st_fore)
+        ld      l,a
+        ld      h,0
+        call    pdec
+        ld      a,'.'
+        call    putc
         ld      b,23
         ld      c,3
         call    gotoxy

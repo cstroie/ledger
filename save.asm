@@ -17,41 +17,75 @@ fcbz:   ld      hl,12
         ldir
         ret
 
-; wfile: DE = fcb, HL = data, B = records: delete, make, write, close
+; wfile: DE = fcb, HL = data, B = records. Written to LEDGER.$$$ first; only a complete file
+; replaces the old one (delete, rename), so a full disk keeps the last good save.
 wfile:  ld      (wf_fcb),de
         ld      (wf_p),hl
         ld      a,b
         ld      (wf_n),a
-        ld      de,(wf_fcb)
+        xor     a
+        ld      (wf_err),a
+        ld      de,fcb_tmp
         call    fcbz
-        ld      de,(wf_fcb)
+        ld      de,fcb_tmp
         ld      c,19
         call    BDOS
-        ld      de,(wf_fcb)
+        ld      de,fcb_tmp
         call    fcbz
-        ld      de,(wf_fcb)
+        ld      de,fcb_tmp
         ld      c,22
         call    BDOS
         inc     a
-        ret     z               ; the disk is full: no file
-wf1:    ld      a,(wf_n)
+        ret     z               ; the disk is full: keep what there is
+swa:    ld      a,(wf_n)
         or      a
-        jr      z,wf2
+        jr      z,swb
         ld      de,(wf_p)
         ld      c,26
         call    BDOS
-        ld      de,(wf_fcb)
+        ld      de,fcb_tmp
         ld      c,21
         call    BDOS
-        ld      hl,(wf_p)
+        or      a
+        jr      z,wfc
+        ld      (wf_err),a
+wfc:    ld      hl,(wf_p)
         ld      de,128
         add     hl,de
         ld      (wf_p),hl
         ld      hl,wf_n
         dec     (hl)
-        jr      wf1
-wf2:    ld      de,(wf_fcb)
+        jr      swa
+swb:    ld      de,fcb_tmp
         ld      c,16
+        call    BDOS
+        ld      a,(wf_err)
+        or      a
+        jr      z,wfd
+        ld      de,fcb_tmp      ; a write failed: throw the new file away
+        ld      c,19
+        jp      BDOS
+wfd:    ld      de,(wf_fcb)     ; the old one goes, the new one takes its name
+        call    fcbz
+        ld      de,(wf_fcb)
+        ld      c,19
+        call    BDOS
+        ld      hl,fcb_ren
+        ld      de,fcb_ren+1
+        ld      bc,35
+        ld      (hl),0
+        ldir
+        ld      hl,fcb_tmp+1
+        ld      de,fcb_ren+1
+        ld      bc,11
+        ldir
+        ld      hl,(wf_fcb)
+        inc     hl
+        ld      de,fcb_ren+17
+        ld      bc,11
+        ldir
+        ld      de,fcb_ren
+        ld      c,23
         jp      BDOS
 
 savegame: ld    de,fcb_sav
@@ -238,4 +272,6 @@ gl6:    push    hl
 fcb_sav: db     0,'LEDGER  SAV',0,0,0,0
         defs    20
 fcb_log: db     0,'LEDGER  LOG',0,0,0,0
+        defs    20
+fcb_tmp: db     0,'LEDGER  $$$',0,0,0,0
         defs    20

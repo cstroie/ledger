@@ -357,6 +357,7 @@ cm0:    call    mkpend
         ld      (lastlamp),a
         xor     a
         ld      (letterf),a
+        ld      (foref),a
         ld      a,(shp)
         cp      7
         jr      z,cm3
@@ -388,8 +389,22 @@ cm2:    ld      a,(hl)
         ld      (letterf),a
 cm3:    ld      a,(unf)
         or      a
-        ret     z
-        ld      hl,ac_n
+        jp      z,foresee
+        ld      a,(letterf)
+        or      a
+        jr      z,cu1
+        dec     a
+        ld      b,a
+        ld      a,1
+        inc     b
+cu_s:   dec     b
+        jr      z,cu_d
+        add     a,a
+        jr      cu_s
+cu_d:   ld      hl,ac_let
+        or      (hl)
+        ld      (hl),a
+cu1:    ld      hl,ac_n
         call    incw
         ld      a,(lamp)
         cp      3
@@ -413,6 +428,38 @@ incw:   inc     (hl)
         ret     nz
         inc     hl
         inc     (hl)
+        ret
+
+; foresee: a storm that the keeper met with the lamp lit, after a swell and a wind in the log
+foresee: ld     a,(wx)
+        cp      5
+        ret     nz
+        ld      a,(lamp)
+        cp      3
+        ret     nc
+        ld      hl,(cn)
+        dec     hl
+        call    getent
+        ret     nc
+        ld      a,(ix+2)
+        and     7
+        cp      3
+        ret     nz
+        ld      hl,(cn)
+        dec     hl
+        dec     hl
+        call    getent
+        ret     nc
+        ld      a,(ix+2)
+        and     7
+        cp      4
+        ret     nz
+        ld      a,1
+        ld      (foref),a
+        ld      hl,st_fore
+        inc     (hl)
+        ret     nz
+        dec     (hl)
         ret
 
 ; entaddr: HL = night -> IX = its place in the ring of 128 entries

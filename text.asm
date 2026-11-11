@@ -54,7 +54,7 @@ lw0:    db      'lit early',0
 lw1:    db      'lit at dark',0
 lw2:    db      'lit late',0
 lw3:    db      'left cold',0
-t_hints: db     '<- -> pages  W wrap  V show  F find  H harbour  M bell  ? help  Q leave',0
+t_hints: db     '<- -> page  W wrap  V show  F find  H harbour  M bell  R new  ? help  Q leave',0
 t_passes: db    'The night passes. You hear it more than you see it.',0
 t_write1: db    ' Night ',0
 t_write2: db    ': the ',0
@@ -113,3 +113,11 @@ t_logans: db    ' answered, ',0
 t_logun: db     ' unseen',CR,LF,0
 t_bye:  db      'The relief hand has the lamp. The log is in LEDGER.LOG (TYPE LEDGER.LOG).',0
 m_ask:  db      'LEDGER: which terminal?  1 VT100   2 VT52   3 ADM-3A  ',0
+t_resetq: db    'Start a new log? The old one is lost. Y for yes, any other key keeps it.',0
+t_fore: db      'A storm, and the lamp was lit: you saw it coming in the log.',0
+t_letterw: db   'A letter came while the page waited. It is in the harbour book (H).',0
+t_wlet: db      'A letter is waiting in the harbour book (H) from ',0
+t_comma: db     ', ',0
+t_hint0: db     'Her light was never answered. See when she passes, and when you lit.',0
+t_village: db   'The village has had your light ',0
+t_village2: db  ' times. Storms foreseen: ',0

@@ -269,3 +269,95 @@ test('a save of another version is not read: the log starts again', { skip: !hav
     v.start('/100'); v.run(1);
     assert.match(v.text(), /the lighthouse keeper's logbook/, 'the introduction again');
 });
+
+// ---- the second round: a safe save, a new log, letters from the relief hand, foresight, a nudge
+test('R starts a new log, but only after Y', { skip: !haveRoot }, async () => {
+    const { disk, visit } = await fresh();
+    const v = await visit(disk, T0);
+    enter(v);
+    v.type('S'); v.run(2); for (const k of ['1', '1', '1']) { v.type(k); v.run(0.3); }
+    v.run(3);
+    assert.match(v.text(), /Night 1 is written/);
+    v.type('r'); v.run(0.3);
+    assert.match(v.text(), /Start a new log\?/);
+    v.type('n'); v.run(0.5);
+    assert.match(v.text(), /Night 1 is written/);
+    v.type('r'); v.run(0.3); v.type('y'); v.run(3);
+    assert.match(v.text(), /the lighthouse keeper's logbook/);
+    v.type(' '); v.run(1);
+    assert.match(v.text(), /Night 1 is open/);
+    assert.match(v.text(), /30 of 30/);
+});
+
+test('a save that does not fit leaves the last good one, and nothing is left behind', { skip: !haveRoot }, async () => {
+    const { CpmFs } = require(path.join(ROOT, 'js/cpmfs.js'));
+    const { disk, visit } = await fresh();
+    let v = await visit(disk, T0);
+    enter(v); leave(v);
+    const f = new CpmFs(disk);
+    const before = Buffer.from(f.read('LEDGER.SAV'));
+    assert.ok(!f.list().some(e => /\$\$\$/.test(e.name || e)), 'no temporary file after a good save');
+    f.write('FILLER.DAT', new Uint8Array(f.freeBytes()));      // not a block left for a second copy
+    v = await visit(disk, T0 + 5 * 3 * HOUR);
+    v.start('/100'); v.run(6);
+    assert.match(v.text(), /You were away for 5 nights/);
+    v.type(' '); v.run(2); leave(v);
+    const f2 = new CpmFs(disk);
+    assert.deepEqual(Buffer.from(f2.read('LEDGER.SAV')), before, 'the old save is untouched');
+    assert.ok(!f2.list().some(e => /\$\$\$/.test(e.name || e)), 'the half-written file is gone');
+    v = await visit(disk, T0 + 5 * 3 * HOUR);
+    v.start('/100'); v.run(6);
+    assert.doesNotMatch(v.text(), /the lighthouse keeper's logbook/, 'the log was not lost');
+});
+
+test('letters and nudges: the relief hand earns the Margit\'s letter, and never answers the Dunmore Lass', { skip: !haveRoot }, async () => {
+    const { disk, visit } = await fresh();
+    let v = await visit(disk, T0);
+    enter(v); leave(v);
+    v = await visit(disk, T0 + 60 * 3 * HOUR);
+    v.start('/100'); v.run(20);
+    assert.match(v.text(), /A letter is waiting in the harbour book \(H\) from the Margit/);
+    v.type(' '); v.run(2);
+    v.type('h'); v.run(1);
+    const t = v.text();
+    assert.match(t, /Dunmore Lass[\s\S]*Her light was never answered\. See when she passes/);
+    assert.match(t, /The village has had your light \d+ times\. Storms foreseen: 0\./);
+    v.type(' '); v.run(1);
+    // and while the book is open
+    v.later(5 * 3 * HOUR); v.run(5);
+    assert.match(v.text(), /relief hand wrote 5 nights|A letter came while the page waited/);
+});
+
+test('a storm met with the lamp lit, after a swell and a wind, is remembered', { skip: !haveRoot }, async () => {
+    let n = 3;
+    while (!(L.world(1234, n).wx === 5 && L.world(1234, n - 1).wx === 3 && L.world(1234, n - 2).wx === 4)) n++;
+    const { disk, visit } = await fresh();
+    let v = await visit(disk, T0);
+    enter(v); leave(v);
+    v = await visit(disk, T0 + (n - 1) * 3 * HOUR);
+    v.start('/100'); v.run(20); v.type(' '); v.run(2);
+    assert.match(v.text(), new RegExp(`Night ${n} is open`));
+    v.type('L'); v.run(4); for (const k of ['1', '1', '1']) { v.type(k); v.run(0.3); }
+    v.run(3);
+    assert.match(v.text(), /A storm, and the lamp was lit: you saw it coming in the log\./);
+    v.type('h'); v.run(1);
+    assert.match(v.text(), /Storms foreseen: 1\./);
+});
+
+test('while the words are being chosen the bell still rings for the next night, once', { skip: !haveRoot }, async () => {
+    const { disk, visit } = await fresh();
+    const v = await visit(disk, T0);
+    let bells = 0;
+    v.term.bell = () => { bells++; };
+    enter(v);
+    v.type('D'); v.run(4);
+    bells = 0;
+    v.later(3 * HOUR); v.run(3);
+    assert.equal(bells, 1, 'rang once');
+    v.later(3 * HOUR); v.run(3);
+    assert.equal(bells, 1, 'not again');
+    for (const k of ['1', '1', '1']) { v.type(k); v.run(0.3); }
+    v.run(4);
+    assert.match(v.text(), /Night 3 is open/);
+    assert.match(v.text(), /Night 2 \(relief hand\)\./);
+});

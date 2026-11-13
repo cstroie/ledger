@@ -1000,7 +1000,7 @@ intro:  call    cls
         ld      b,2
         call    textscr
         ld      b,3
-        ld      c,32
+        ld      c,35            ; 'L E D G E R' centred
         call    gotoxy
         ld      a,A_BOLD
         call    setattr
@@ -1009,7 +1009,7 @@ intro:  call    cls
         xor     a
         call    setattr
         ld      b,23
-        ld      c,3
+        ld      c,35            ; 'press a key' centred
         call    gotoxy
         ld      a,A_DIM
         call    setattr

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1 (2026-11-13)
+
+- The intro screen's title and "press a key" are centred.
+
 ## 1.0.0 (2026-11-13)
 
 First release.

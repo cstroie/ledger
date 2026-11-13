@@ -1,7 +1,7 @@
 'use strict';
 /*
  * screen.js: run a CP/M program from a folder in DigitalRerun's emulator and print what the
- * terminal shows. For development and tests; needs the DigitalRerun checkout (ROOT, default ../../..).
+ * terminal shows. For development and tests; needs the DigitalRerun checkout (ROOT, default ../digital-rerun).
  *
  *   node tools/screen.js <folder> <command line> [step ...]
  *
@@ -10,7 +10,7 @@
  */
 const fs = require('node:fs');
 const path = require('node:path');
-const ROOT = process.env.ROOT || path.join(__dirname, '..', '..', '..');
+const ROOT = process.env.ROOT || path.join(__dirname, '..', '..', 'digital-rerun');
 const { Machine } = require(path.join(ROOT, 'js/machine.js'));
 const { Disk } = require(path.join(ROOT, 'js/devices/fdc.js'));
 const { fromFolder } = require(path.join(ROOT, 'js/folderdisk.js'));

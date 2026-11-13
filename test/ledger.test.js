@@ -1,4 +1,5 @@
 'use strict';
+process.env.TZ = 'UTC';   // the emulated clock reads local time: the tests' dates are UTC
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -8,8 +9,9 @@ const { parse, build, check } = require('../mkwords.js');
 const L = require('../tools/ledger.js');
 
 const APP = path.join(__dirname, '..');
-const ROOT = process.env.ROOT || path.join(APP, '..', '..');
-const haveRoot = fs.existsSync(path.join(ROOT, 'js/machine.js'));
+const ROOT = process.env.ROOT || path.join(APP, '..', 'digital-rerun');
+// the emulator tests need the checkout and a built LEDGER.COM (it is not in git: sh build.sh)
+const haveRoot = fs.existsSync(path.join(ROOT, 'js/machine.js')) && fs.existsSync(path.join(APP, 'LEDGER.COM'));
 
 // ---- the words
 test('words.inc is what words.txt builds to', () => {

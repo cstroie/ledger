@@ -2,7 +2,7 @@
 /*
  * visit.js: a machine with a disk and a clock we control, to run LEDGER on at chosen times.
  * For tests and for looking at the pool a week on. Needs the DigitalRerun checkout (ROOT,
- * default ../../..).
+ * default ../digital-rerun).
  *
  *   const { newDisk, visit } = require('./visit.js');
  *   const disk = await newDisk(folder);                       // B: with LEDGER.COM on it
@@ -13,7 +13,7 @@
  */
 const fs = require('node:fs');
 const path = require('node:path');
-const ROOT = process.env.ROOT || path.join(__dirname, '..', '..', '..');
+const ROOT = process.env.ROOT || path.join(__dirname, '..', '..', 'digital-rerun');
 const { Machine } = require(path.join(ROOT, 'js/machine.js'));
 const { Disk } = require(path.join(ROOT, 'js/devices/fdc.js'));
 const { fromFolder } = require(path.join(ROOT, 'js/folderdisk.js'));
